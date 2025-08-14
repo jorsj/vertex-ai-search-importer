@@ -60,7 +60,7 @@ def update_vertex_search(cloud_event):
     # Configure the request
     request = discoveryengine.ImportDocumentsRequest(
         parent=parent,
-        gcs_source=discoveryengine.GcsSource(input_uris=[gcs_uri]),
+        gcs_source=discoveryengine.GcsSource(input_uris=[gcs_uri], data_schema="content"),
         # INCREMENTAL mode adds new documents and updates existing ones.
         # Use FULL to replace the entire data store with the contents of the GCS path.
         reconciliation_mode=discoveryengine.ImportDocumentsRequest.ReconciliationMode.INCREMENTAL,
