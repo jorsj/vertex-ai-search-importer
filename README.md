@@ -26,7 +26,7 @@ You will also need:
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/vertex-ai-search-importer.git
+    git clone https://github.com/jorsj/vertex-ai-search-importer.git
     cd vertex-ai-search-importer
     ```
 
@@ -79,6 +79,7 @@ The project's dependencies are listed in the `requirements.txt` file:
 
 -   `functions-framework==3.*`
 -   `google-cloud-discoveryengine==0.9.0`
+-   `google-cloud-logging==3.*`
 
 ## License
 
