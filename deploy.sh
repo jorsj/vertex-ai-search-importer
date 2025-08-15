@@ -133,15 +133,22 @@ PROJECT_NUMBER=$(gcloud projects describe ${YOUR_PROJECT_ID} --format='value(pro
 GCS_SERVICE_ACCOUNT="service-${PROJECT_NUMBER}@gs-project-accounts.iam.gserviceaccount.com"
 gcloud projects add-iam-policy-binding ${YOUR_PROJECT_ID} --member="serviceAccount:${GCS_SERVICE_ACCOUNT}" --role="roles/pubsub.publisher" --condition=None
 
-echo "${BOLD}--- Step 3: Deploying Cloud Function ---${NC}"
+# Permissions for the Eventarc Service Agent (to validate triggers) ---
+echo "  - Granting permissions to the Eventarc Service Agent..."
+EVENTARC_SERVICE_ACCOUNT="service-${PROJECT_NUMBER}@gcp-sa-eventarc.iam.gserviceaccount.com"
+gcloud projects add-iam-policy-binding ${YOUR_PROJECT_ID} --member="serviceAccount:${EVENTARC_SERVICE_ACCOUNT}" --role="roles/eventarc.serviceAgent" --condition=None
+
+echo "${BOLD}--- Step 3: Deploying Cloud Function with dual triggers ---${NC}"
 gcloud functions deploy ${FUNCTION_NAME} \
   --gen2 \
   --runtime=python311 \
   --project=${YOUR_PROJECT_ID} \
   --region=${GCP_REGION:-us-central1} \
   --source=. \
-  --entry-point=update_vertex_search \
-  --trigger-bucket=${TRIGGER_BUCKET} \
+  --entry-point=sync_vertex_search \
+  --trigger-event=google.cloud.storage.object.v1.finalized \
+  --trigger-event=google.cloud.storage.object.v1.deleted \
+  --trigger-resource=${TRIGGER_BUCKET} \
   --trigger-location=${TRIGGER_LOCATION} \
   --service-account=${FUNCTION_SA_EMAIL} \
   --trigger-service-account=${TRIGGER_SA_EMAIL} \
@@ -152,4 +159,4 @@ echo "${GREEN}${BOLD}=========================================${NC}"
 echo "${GREEN}${BOLD} Deployment Complete! ${NC}"
 echo "${GREEN}${BOLD}=========================================${NC}"
 echo "Your function '${FUNCTION_NAME}' is now active."
-echo "Upload a supported file to 'gs://${TRIGGER_BUCKET}' to trigger the import."
+echo "It will now sync creations, updates, AND deletions from 'gs://${TRIGGER_BUCKET}'."
