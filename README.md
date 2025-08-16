@@ -1,13 +1,18 @@
 # Vertex AI Search Importer
 
-This project contains a Google Cloud Function that automatically imports files from a Google Cloud Storage (GCS) bucket into a Vertex AI Search data store. The function is triggered whenever a new file is uploaded to the specified GCS bucket.
+This project contains a Google Cloud Function that automatically syncs files from a Google Cloud Storage (GCS) bucket with a Vertex AI Search data store.
+
+The function is triggered by GCS events and supports the following operations:
+
+-   **Upsert:** When a file is created or updated in the GCS bucket, the function automatically imports it into the Vertex AI Search data store.
+-   **Delete:** When a file is deleted from the GCS bucket, the function automatically deletes the corresponding document from the data store.
 
 ## Features
 
--   **Automatic Import:** Automatically imports new files from a GCS bucket to a Vertex AI Search data store.
--   **Supported File Types:** Supports a variety of file types, including `.html`, `.pdf`, `.docx`, `.pptx`, `.txt`, and `.xlsx`.
--   **Easy Deployment:** Includes an interactive deployment script that simplifies the process of setting up the Cloud Function and all necessary permissions.
+-   **Automatic Sync:** Keeps your Vertex AI Search data store in sync with a GCS bucket.
 -   **Secure:** Follows security best practices by creating separate, minimally-privileged service accounts for the function and its trigger.
+-   **Easy Deployment:** Includes an interactive deployment script that simplifies the process of setting up the Cloud Function and all necessary permissions.
+-   **Supported File Types:** Supports a variety of file types, including `.html`, `.pdf`, `.docx`, `.pptx`, `.txt`, and `.xlsx`.
 
 ## Prerequisites
 
@@ -61,6 +66,8 @@ These environment variables are automatically set by the `deploy.sh` script duri
 ## Usage
 
 Once the Cloud Function is deployed, you can trigger it by uploading a supported file to the GCS bucket that you specified during deployment. The function will then automatically import the file into your Vertex AI Search data store.
+
+If you delete a file from the GCS bucket, the function will automatically delete the corresponding document from your data store.
 
 ## Supported File Types
 

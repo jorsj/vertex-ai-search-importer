@@ -145,14 +145,31 @@ gcloud functions deploy ${FUNCTION_NAME} \
   --project=${YOUR_PROJECT_ID} \
   --region=${GCP_REGION:-us-central1} \
   --source=. \
+  --trigger-http \
+  --no-allow-unauthenticated \
   --entry-point=sync_vertex_search \
-  --trigger-event=google.cloud.storage.object.v1.finalized \
-  --trigger-event=google.cloud.storage.object.v1.deleted \
-  --trigger-resource=${TRIGGER_BUCKET} \
-  --trigger-location=${TRIGGER_LOCATION} \
   --service-account=${FUNCTION_SA_EMAIL} \
-  --trigger-service-account=${TRIGGER_SA_EMAIL} \
   --set-env-vars=PROJECT_ID=${YOUR_PROJECT_ID},LOCATION=${VERTEX_LOCATION:-global},DATA_STORE_ID=${VERTEX_DATA_STORE_ID}
+
+echo "  - Creating the storage object finalized event trigger..."
+gcloud eventarc triggers create ${FUNCTION_NAME}-storage-object-finalized \
+--location=${TRIGGER_LOCATION} \
+--service-account=${TRIGGER_SA_EMAIL} \
+--destination-run-service=${FUNCTION_NAME} \
+--destination-run-region=${GCP_REGION:-us-central1} \
+--destination-run-path="/" \
+--event-filters="bucket=${TRIGGER_BUCKET}" \
+--event-filters="type=google.cloud.storage.object.v1.finalized"
+
+echo "  - Creating the storage object deleted event trigger..."
+gcloud eventarc triggers create ${FUNCTION_NAME}-storage-object-deleted \
+--location=${TRIGGER_LOCATION} \
+--service-account=${TRIGGER_SA_EMAIL} \
+--destination-run-service=${FUNCTION_NAME} \
+--destination-run-region=${GCP_REGION:-us-central1} \
+--destination-run-path="/" \
+--event-filters="bucket=${TRIGGER_BUCKET}" \
+--event-filters="type=google.cloud.storage.object.v1.deleted"
 
 echo ""
 echo "${GREEN}${BOLD}=========================================${NC}"
